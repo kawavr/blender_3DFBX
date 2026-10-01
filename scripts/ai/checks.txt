@@ -1,0 +1,10 @@
+# Commands run by scripts/ai/run-checks.sh, one per line, executed from the repo root.
+# Lines starting with '#' are ignored. If no active line exists, run-checks.sh FAILS
+# (an empty check list must never be reported as "passed").
+#
+# TODO(Phase 0): replace with this project's real checks. Examples for a Blender add-on:
+# ruff check .
+# ruff format --check .
+# mypy src
+# pytest -q tests/unit
+# blender --background --factory-startup --python-exit-code 1 --python tests/blender/run_tests.py

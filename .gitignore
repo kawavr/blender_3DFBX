@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.venv/
+# review bundles are created outside the repo (../_review) by default; guard in case REVIEW_ROOT points inside
+_review/

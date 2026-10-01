@@ -1,0 +1,78 @@
+# Standard Task Schema v1 — see docs/ai-workflow/WORKFLOW.md §5
+# Do NOT write implementation rationale here (this file is given to the reviewer). Use log.md.
+
+task_id: __TASK_ID__
+title: ""
+class: __CLASS__        # trivial | normal_feature | refactoring | architecture_change | bug_investigation | difficult_bug | performance | security | dependency_update | test_creation | documentation | external_spec_research
+risk: medium            # low | medium | high  (when unsure: higher)
+created: __DATE__
+requested_by: "human:"  # human:<name>
+
+# ---- Stage control (changed only by the orchestrator = human / deterministic script) ----
+current_stage: TRIAGE   # TRIAGE | SPEC | SPEC_GATE | IMPL | LOCAL_VERIFY | REVIEW | FIX | CI | FINAL_REVIEW | MERGE_GATE | MERGED | INVESTIGATION | ESCALATED | BLOCKED | ABANDONED
+owner: human            # human | opus | sonnet | astra
+stage_history: []
+#  - {stage: SPEC, owner: opus, at: 2026-10-01T10:00Z, by: "human:<name>", note: ""}
+
+# ---- What ----
+objective: >-
+  (1-3 sentences: the outcome, not the implementation)
+context: >-
+  (why now; current behavior with file:line references)
+spec_ref: tasks/__TASK_ID__/spec.md   # "none" for trivial/test/docs
+acceptance_criteria:
+  - id: AC-1
+    statement: "Given ..., when ..., then ..."
+    verification: "test:tests/<path>::<name>"   # test:... | manual:<procedure> | measurement:<metric, method, threshold>
+    status: NOT_STARTED  # NOT_STARTED | IMPLEMENTED_UNVERIFIED | PARTIALLY_VERIFIED | VERIFIED | BLOCKED
+    evidence: []         # [tasks/<id>/evidence/<file>.log]
+non_goals: []
+
+# ---- Boundaries ----
+allowed_scope:
+  paths: []              # globs, e.g. ["src/export/fbx_mesh.py", "tests/export/**"]
+  change_types: []       # e.g. [bugfix, add_tests] | [new_feature] | [refactor_no_behavior_change]
+forbidden_scope:
+  paths: []
+  actions:
+    - add_or_upgrade_dependency
+    - change_public_api
+    - change_persistence_format
+    - modify_acceptance_criteria
+    - delete_or_skip_tests
+relevant_files: []
+dependencies:
+  tasks: []              # task_ids that must be MERGED first
+  packages_allowed_to_add: []   # empty = none allowed without G6
+known_constraints: []    # facts; prefix assumptions with "ASSUMPTION:"
+tests_required: []       # beyond AC tests, e.g. regression test for issue #n
+open_questions: []       # for the human; AI must not answer these itself
+
+# ---- Control ----
+escalation_conditions:
+  defaults: [E1, E2, E3, E4, E5, E6, E7, E8, E9]   # WORKFLOW.md §10.1
+  task_specific: []
+limits:                  # raising these requires gate G9
+  max_fix_attempts_per_failure: 3
+  max_check_runs: 12
+  max_review_rounds: 2
+  max_hypotheses_per_investigator: 5
+counters:
+  check_runs: 0
+  review_rounds: 0
+  fix_attempts: {}       # {"tests/x.py::test_y": 2}
+approvals:
+  required: []           # [G1, G6, ...]
+  granted: []            # - {gate: G6, by: "human:<name>", at: 2026-10-01, ref: "PR comment / ADR-0003"}
+astra_review: required   # required | skipped (reason: ...) | substituted_by human:<name>
+final_review: not_triggered   # not_triggered | required (trigger: ...) | approved | changes_required
+
+# ---- Git ----
+git:
+  base_branch: main
+  base_commit: __BASE_COMMIT__
+  branch: ai/__TASK_ID__
+  worktree: ../wt/__TASK_ID__
+
+# ---- Results ----
+follow_ups: []           # out-of-scope observations, NOT acted on
